@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.conversion_application.databinding.ActivityMainBinding
 
@@ -21,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+    private var selectedConversionType: ConversionType = ConversionType.CM_TO_INCH
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -43,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.spinnerConversionType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                var selectedConversionType = when (position) {
+                when (position) {
                     0 -> ConversionType.CM_TO_INCH
                     1 -> ConversionType.INCH_TO_CM
                     2 -> ConversionType.METER_TO_FEET
@@ -59,7 +62,29 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Does nothing
             }
-        }
 
+        }
+        binding.buttonConvert.setOnClickListener {
+            convert()
+        }
+    }
+    private fun convert() {
+        val input = binding.editTextInput.text.toString().toDoubleOrNull()
+        if (input != null) {
+
+            val result = when (selectedConversionType) {
+                ConversionType.CM_TO_INCH -> input * 0.393701
+                ConversionType.INCH_TO_CM -> input * 2.54
+                ConversionType.METER_TO_FEET -> input * 3.28084
+                ConversionType.FEET_TO_METER -> input * 0.3048
+                ConversionType.KG_TO_POUND -> input * 2.20462
+                ConversionType.POUND_TO_KG -> input * 0.453592
+                ConversionType.CELSIUS_TO_FAHRENHEIT -> (input * 9 / 5) + 32
+                ConversionType.FAHRENHEIT_TO_CELSIUS -> (input - 32) * 5 / 9
+            }
+            binding.textViewResult.text = result.toString()
+        } else {
+            Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
+        }
     }
 }
